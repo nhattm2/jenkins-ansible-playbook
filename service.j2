@@ -7,6 +7,7 @@ Type=forking
 
 User=jenkins
 Group=jenkins
+Environment="JENKINS_HOME=/u01/data/jenkins"
 
 ExecStart=/u01/apps/jenkins/apache-tomcat/bin/startup.sh
 ExecStop=/u01/apps/jenkins/apache-tomcat/bin/shutdown.sh

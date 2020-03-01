@@ -70,6 +70,18 @@
     group: jenkins
     recurse: true
 
+- name: mkdir jenkins_home
+  file:
+    path: /u01/data/jenkins
+    state: directory
+
+- name: chown jenkins_home
+  file:
+    path: /u01/data/jenkins
+    owner: jenkins
+    group: jenkins
+    recurse: true
+
 - name: setup Jenkins service
   template:
     src=service.j2
