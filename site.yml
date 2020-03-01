@@ -1,0 +1,10 @@
+---
+- name: Install Jenkins
+  hosts: jenkins
+  gather_facts: false
+  become: true
+  vars:
+    - apps_user: 'jenkins'
+  tasks:
+  - import_role:
+      name: jenkins

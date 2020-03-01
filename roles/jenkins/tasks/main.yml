@@ -1,0 +1,85 @@
+---
+- name: Check if jenkins service exists
+  stat: path=/etc/systemd/system/jenkins.service
+  register: service_status
+
+- name: end playbook if jenkins exists
+  meta: end_play
+  when: service_status.stat.exists == true
+
+- name: add user jenkins
+  user:
+    name: "{{apps_user}}"
+    shell: /bin/bash
+
+- name: install wget
+  yum:
+    name: wget
+    state: present
+
+- name: install openjdk
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+
+- name: mkdir /u01/apps/jenkins
+  file:
+    path: /u01/apps/jenkins
+    state: directory
+
+- name: download tomcat
+  get_url:
+    url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz
+    dest: /u01/apps/jenkins/tomcat.tar.gz
+
+- name: unzip tomcat
+  unarchive:
+    src: /u01/apps/jenkins/tomcat.tar.gz
+    dest: /u01/apps/jenkins/
+    remote_src: true
+
+- name: remove apache-tomcat dir
+  file:
+    path: /u01/apps/jenkins/apache-tomcat
+    state: absent
+
+- name: rename tomcat
+  command: mv /u01/apps/jenkins/apache-tomcat-9.0.31 /u01/apps/jenkins/apache-tomcat
+
+- name: remove /u01/apps/jenkins/apache-tomcat/webapps
+  file:
+    path: /u01/apps/jenkins/apache-tomcat/webapps
+    state: absent
+
+- name: mkdir /u01/apps/jenkins/apache-tomcat/webapps
+  file:
+    path: /u01/apps/jenkins/apache-tomcat/webapps
+    state: directory
+
+- name: download jenkins
+  get_url:
+    url: http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+    dest: /u01/apps/jenkins/jenkins.war
+- name: place jenkins into tomcat folder
+  command: cp /u01/apps/jenkins/jenkins.war /u01/apps/jenkins/apache-tomcat/webapps/jenkins.war
+
+- name: chown jenkins
+  file:
+    path: /u01/apps/jenkins
+    owner: jenkins
+    group: jenkins
+    recurse: true
+
+- name: setup Jenkins service
+  template:
+    src=service.j2
+    dest=/etc/systemd/system/jenkins.service
+    backup=yes
+- name: start Jenkins
+  systemd:
+    daemon_reload: yes
+    name: jenkins
+    state: started
+
+#- name: start tomcat
+#  command: cd /u01/apps/jenkins/apache-tomcat/bin && ./startup.sh

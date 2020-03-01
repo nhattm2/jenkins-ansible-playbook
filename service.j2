@@ -1,0 +1,18 @@
+[Unit]
+Description=Tomcat - instance %i
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+User=jenkins
+Group=jenkins
+
+ExecStart=/u01/apps/jenkins/apache-tomcat/bin/startup.sh
+ExecStop=/u01/apps/jenkins/apache-tomcat/bin/shutdown.sh
+
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
