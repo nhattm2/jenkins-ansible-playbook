@@ -1,10 +1,13 @@
 ---
-- name: Install Jenkins
-  hosts: jenkins
+- name: Install Jenkins node1
+  hosts: centos11
   gather_facts: false
   become: true
   vars:
     - apps_user: 'jenkins'
+    - proxy_env:
+        http_proxy: "http://10.60.135.36:8800"
+        https_proxy: "http://10.60.135.36:8800"
   tasks:
   - import_role:
       name: jenkins

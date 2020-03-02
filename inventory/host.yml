@@ -1,2 +1,14 @@
-[jenkins]
-  centos11
+all:
+  hosts:
+    centos11:
+      ansible_ssh_host: centos11
+      ansible_become: true
+      ansible_user: vagrant
+    centos12:
+      ansible_ssh_host: centos12
+      ansible_become: true
+      ansible_user: vagrant
+    centos13:
+      ansible_ssh_host: centos13
+      ansible_become: true
+      ansible_user: vagrant

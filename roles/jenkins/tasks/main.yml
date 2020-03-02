@@ -7,6 +7,12 @@
   meta: end_play
   when: service_status.stat.exists == true
 
+- name: setup yum proxy
+  replace:
+    path: /etc/yum.conf
+    regexp: '^proxy=(.*)$'
+    replace: 'proxy=http://10.60.135.36:8800'
+
 - name: add user jenkins
   user:
     name: "{{apps_user}}"
@@ -29,8 +35,9 @@
 
 - name: download tomcat
   get_url:
-    url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz
+    url: http://mirrors.viethosting.com/apache/tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz
     dest: /u01/apps/jenkins/tomcat.tar.gz
+  environment: "{{proxy_env}}"
 
 - name: unzip tomcat
   unarchive:
@@ -59,7 +66,10 @@
 - name: download jenkins
   get_url:
     url: http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+    #    url: https://drive.google.com/uc?export=download&confirm=0A7m&id=1Dn-h9p78lyZjGrz7OOHzYcvwtp14cu1h
     dest: /u01/apps/jenkins/jenkins.war
+  environment: "{{proxy_env}}"
+    
 - name: place jenkins into tomcat folder
   command: cp /u01/apps/jenkins/jenkins.war /u01/apps/jenkins/apache-tomcat/webapps/jenkins.war
 
@@ -92,6 +102,10 @@
     daemon_reload: yes
     name: jenkins
     state: started
+- name: read password
+  shell: cat /u01/data/jenkins/secrets/initialAdminPassword
+  register: jenkins_init_password
 
-#- name: start tomcat
-#  command: cd /u01/apps/jenkins/apache-tomcat/bin && ./startup.sh
+- name: cat init password
+  debug:
+    msg: "{{jenkins_init_password.stdout}}"
