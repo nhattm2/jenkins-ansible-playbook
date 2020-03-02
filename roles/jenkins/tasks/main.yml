@@ -102,6 +102,10 @@
     daemon_reload: yes
     name: jenkins
     state: started
+- name: wait 1m before read password
+  wait_for:
+    sleep: 10
+    path: /u01/data/jenkins/secrets/initialAdminPassword
 - name: read password
   shell: cat /u01/data/jenkins/secrets/initialAdminPassword
   register: jenkins_init_password
