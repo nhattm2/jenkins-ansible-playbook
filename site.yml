@@ -8,6 +8,7 @@
     - proxy_env:
         http_proxy: "http://10.60.135.36:8800"
         https_proxy: "http://10.60.135.36:8800"
+    - jenkins_port: '8080'
   tasks:
   - import_role:
       name: jenkins
